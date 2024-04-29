@@ -24,9 +24,10 @@ urlpatterns = [
     path('', include('data.urls')),
     path('login/', views.api_login),
     path('register/',views.api_register),
-    path('creation_events_page/',views.inicialize_events_page),
-    path('create_new_event/',views.create_new_event),
+    path('creation-events-page/',views.inicialize_events_page),
+    path('create-new-event/',views.create_new_event),
     path('events/<int:evento_id>/photo/', views.show_photo),
     path('events/nophoto/', views.get_default_photo),
+    path('users/get-user-data/', views.get_user_data),
 ]
 

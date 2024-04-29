@@ -171,3 +171,24 @@ def get_default_photo(request):
             return HttpResponse(image_file.read(), content_type='image/jpeg')
     else:
         return HttpResponse(status=404)
+
+@api_view(['POST'])
+def get_user_data(request):
+    if request.method == 'POST':
+		data = request.data
+		token_data = data.get('token', None)
+		if token_data is None:
+			return JsonResponse({"error": "Token invalido"}, status=400)
+		usuario = get_object_or_404(Usuario, token=token_data)
+		return JsonResponse({
+            "email":usuario.email,
+            "telefono":usuario.telefono,
+            "nombre_usuario":usuario.nombre_usuario,
+            "apellido_usuario":usuario.apellido_usuario,
+            "fecha_nacimiento":usuario.fecha_nacimiento
+        })
+
+		return JsonResponse({"mensaje": "Evento creado exitosamente"}, status=201)
+
+	else:
+		return JsonResponse({"error": "M  todo no permitido"}, status=405)
