@@ -22,12 +22,15 @@ from data import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('data.urls')),
-    path('login/', views.api_login),
-    path('register/',views.api_register),
-    path('creation-events-page/',views.inicialize_events_page),
-    path('create-new-event/',views.create_new_event),
-    path('events/<int:evento_id>/photo/', views.show_photo),
-    path('events/nophoto/', views.get_default_photo),
-    path('users/get-user-data/', views.get_user_data),
+    path('login/', views.api_login), #LOGEARSE
+    path('register/',views.api_register), #REGISTRARSE
+    path('creation-events-page/',views.inicialize_events_page), #CARGAR EVENTOS CREADOS POR EL USUARIO
+    path('create-new-event/',views.create_new_event), #CREAR UN NUEVO EVENTO
+    path('events/<int:evento_id>/photo/', views.show_photo), #OBTENER IMAGEN DE UN EVENTO
+    path('events/nophoto/', views.get_default_photo), #OBTENER FOTO PREDETERMINADA DE UN EVENTO
+    path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO (NO IMPLEMENTADA CLIENTE)
+    path('user/<int:user_id>/photo/', views.show_photo_user), #OBTENER IMAGEN DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
+    path('user/update-user-data/', views.update_user_data), #ACTUALIZAR DATOS DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
+    path('user/update-user-ubi/',  views.update_user_ubi), #ACTUALIZAR UBICACION DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
 ]
 
