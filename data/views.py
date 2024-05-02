@@ -117,8 +117,14 @@ def inicialize_events_page(request):
             return JsonResponse({"error": "Token invalido"}, status=400)
         usuario = get_object_or_404(Usuario, token=token_data)
         eventos_creados = Evento.objects.filter(usuario_anfitrion=usuario).order_by('-fecha')
-        eventos_json = serialize('json', eventos_creados)
-        return JsonResponse(eventos_json, safe=False)
+        results = []
+        for evento in eventos_creados:
+            results.append({'id': evento.pk, 'titulo_evento': evento.titulo_evento,
+                            'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
+                            'descripcion_evento':evento.descripcion_evento, 'localizacion_evento':evento.localizacion_evento,
+                            'fecha':evento.fecha
+                            })
+        return JsonResponse(results, safe=False)
 
     else:
         return JsonResponse({"error": "M  todo no permitido"}, status=405)
@@ -133,7 +139,13 @@ def show_photo(request, evento_id):
         with open(photo_path, 'rb') as photo_file:
             return HttpResponse(photo_file.read(), content_type='image/jpeg')
     else:
-        return HttpResponse(status=404)
+        image_path = os.path.join(settings.MEDIA_ROOT, 'event_photos', 'nophoto.jpg')
+    
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as image_file:
+                return HttpResponse(image_file.read(), content_type='image/jpeg')
+        else:
+            return HttpResponse(status=404)
 
 @csrf_exempt   
 def show_photo_user(request, user_id):
@@ -182,16 +194,7 @@ def create_new_event(request):
 	else:
 		return JsonResponse({"error": "M  todo no permitido"}, status=405)
 
-@csrf_exempt
-def get_default_photo(request):
-    
-    image_path = os.path.join(settings.MEDIA_ROOT, 'event_photos', 'nophoto.jpg')
-    
-    if os.path.exists(image_path):
-        with open(image_path, 'rb') as image_file:
-            return HttpResponse(image_file.read(), content_type='image/jpeg')
-    else:
-        return HttpResponse(status=404)
+
 
 
 @api_view(['POST'])
