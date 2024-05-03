@@ -181,6 +181,7 @@ def create_new_event(request):
 			limite_asistentes=data.get('limite_asistentes', 0),
 			descripcion_evento=data.get('descripcion_evento', ''),
 			localizacion_evento=data.get('localizacion_evento', ''),
+            titulo_evento=data.get('titulo_evento',''),
 			foto_evento=foto,
 			fecha=data.get('fecha', None)
 			)
