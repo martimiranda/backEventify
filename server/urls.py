@@ -27,6 +27,7 @@ urlpatterns = [
     path('creation-events-page/',views.inicialize_events_page), #CARGAR EVENTOS CREADOS POR EL USUARIO
     path('create-new-event/',views.create_new_event), #CREAR UN NUEVO EVENTO
     path('events/<int:evento_id>/photo/', views.show_photo), #OBTENER IMAGEN DE UN EVENTO
+    path('events/get-event-data/<int:evento_id>/', views.get_event_data), #OBTENER DATOS DE UN EVENTO 
     path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/<int:user_id>/photo/', views.show_photo_user), #OBTENER IMAGEN DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/update-user-data/', views.update_user_data), #ACTUALIZAR DATOS DE UN USUARIO (NO IMPLEMENTADA CLIENTE)

@@ -40,6 +40,7 @@ class Evento(models.Model):
     limite_asistentes = models.IntegerField()
     descripcion_evento = models.TextField()
     localizacion_evento = models.CharField(max_length=255)
+    localizacion_evento_string = models.CharField(max_length=200)
     foto_evento = models.ImageField(upload_to='event_photos/', blank=True, null=True)
     fecha = models.DateTimeField(blank=True, null=True)
 

@@ -121,7 +121,7 @@ def inicialize_events_page(request):
         for evento in eventos_creados:
             results.append({'id': evento.pk, 'titulo_evento': evento.titulo_evento,
                             'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
-                            'descripcion_evento':evento.descripcion_evento, 'localizacion_evento':evento.localizacion_evento,
+                            'descripcion_evento':evento.descripcion_evento, 'localizacion_evento_string':evento.localizacion_evento_string,
                             'fecha':evento.fecha
                             })
         return JsonResponse(results, safe=False)
@@ -181,6 +181,7 @@ def create_new_event(request):
 			limite_asistentes=data.get('limite_asistentes', 0),
 			descripcion_evento=data.get('descripcion_evento', ''),
 			localizacion_evento=data.get('localizacion_evento', ''),
+            localizacion_evento_string=data.get('localizacion_evento_string', ''), 
             titulo_evento=data.get('titulo_evento',''),
 			foto_evento=foto,
 			fecha=data.get('fecha', None)
@@ -194,6 +195,23 @@ def create_new_event(request):
 
 	else:
 		return JsonResponse({"error": "M  todo no permitido"}, status=405)
+
+@api_view(['POST'])
+def get_event_data(request,evento_id):
+        data = request.data
+        token_data = data.get('token', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        get_object_or_404(Usuario, token=token_data)
+        evento = get_object_or_404(Evento, pk=evento_id)
+        evento_data={'id': evento.pk, 'usuario_anfitrion': evento.usuario_anfitrion.pk, 'titulo_evento': evento.titulo_evento,
+                            'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
+                            'descripcion_evento':evento.descripcion_evento, 'localizacion_evento_string':evento.localizacion_evento_string,
+                            'localizacion_evento':evento.localizacion_evento,
+                            'fecha':evento.fecha
+                            }
+        return JsonResponse(evento_data, safe=False)
+
 
 
 
