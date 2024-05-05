@@ -197,6 +197,42 @@ def create_new_event(request):
 		return JsonResponse({"error": "M  todo no permitido"}, status=405)
 
 @api_view(['POST'])
+def update_event_data(request):
+        datos = request.data
+        token_data = datos.get('token', None)
+        evento_id = datos.get('evento_id', None)
+        foto = request.FILES.get('foto', None)
+
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        get_object_or_404(Usuario, token=token_data)
+
+        evento = get_object_or_404(Evento, pk=evento_id)
+        try:
+            if 'titulo_evento' in datos:
+                evento.titulo_evento = datos['titulo_evento']
+            if 'pago' in datos:
+                evento.pago = datos['pago']
+            if 'limite_asistentes' in datos:
+                evento.limite_asistentes = datos['limite_asistentes']
+            if 'descripcion_evento' in datos:
+                evento.descripcion_evento = datos['descripcion_evento']
+            if 'localizacion_evento' in datos:
+                evento.localizacion_evento = datos['localizacion_evento']
+            if 'localizacion_evento_string' in datos:
+                evento.localizacion_evento_string = datos['localizacion_evento_string']
+            if 'fecha' in datos:
+                evento.fecha = datos['fecha']
+            if foto is not None:
+                evento.foto_evento = datos['foto']
+            
+            evento.save()
+            return JsonResponse({'mensaje': 'Datos del evento actualizados correctamente'})
+        except KeyError as e:
+            return JsonResponse({'error': f"Error al actualizar el evento: {str(e)}"}, status=400)
+
+
+@api_view(['POST'])
 def get_event_data(request,evento_id):
         data = request.data
         token_data = data.get('token', None)
@@ -211,6 +247,8 @@ def get_event_data(request,evento_id):
                             'fecha':evento.fecha
                             }
         return JsonResponse(evento_data, safe=False)
+
+
 
 
 
