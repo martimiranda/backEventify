@@ -322,3 +322,38 @@ def update_user_ubi(request):
             return JsonResponse({'message': 'User does not exist'}, status=404)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+@api_view(['POST'])
+def delete_event(request):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        evento_id = data.get('evento_id', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        usuario = get_object_or_404(Usuario, token=token_data)
+        evento = get_object_or_404(Evento, pk=evento_id)
+        evento.delete()  
+        return JsonResponse({"mensaje": "Evento eliminado correctamente"})
+    
+@csrf_exempt  
+def get_events_locations(request):
+    eventos = Evento.objects.all()
+    
+    localizaciones = []
+    
+    for evento in eventos:
+        localizacion_json = json.loads(evento.localizacion_evento)
+        
+        # Crea un diccionario para cada evento con las propiedades lat, lng y título
+        evento_json = {
+            'lat': localizacion_json['lat'],
+            'lng': localizacion_json['lng'],
+            'titulo_evento': evento.titulo_evento,
+            'id_evento': evento.pk
+        }
+        # Añade el diccionario a la lista de localizaciones
+        localizaciones.append(evento_json)
+    
+    
+    return JsonResponse(localizaciones, safe=False)
