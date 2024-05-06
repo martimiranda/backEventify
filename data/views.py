@@ -350,7 +350,11 @@ def get_events_locations(request):
             'lat': localizacion_json['lat'],
             'lng': localizacion_json['lng'],
             'titulo_evento': evento.titulo_evento,
-            'id_evento': evento.pk
+            'id_evento': evento.pk,
+            'usuario_anfitrion': evento.usuario_anfitrion.nombre_usuario,
+            'localizacion_evento_string':evento.localizacion_evento_string,
+            'fecha':evento.fecha,
+            'descripcion_evento':evento.descripcion_evento
         }
         # Añade el diccionario a la lista de localizaciones
         localizaciones.append(evento_json)
