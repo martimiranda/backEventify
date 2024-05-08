@@ -354,11 +354,20 @@ def get_events_locations(request):
             return JsonResponse({"error": "Token inválido"}, status=400)
         
         usuario = get_object_or_404(Usuario, token=token_data)
+        usuarioEvento = UsuarioEvento.objects.filter(usuario=usuario) 
+        if usuarioEvento.exists():
+            eventos = Evento.objects.exclude(usuario_anfitrion=usuario).exclude(
+                Q(pk__in=usuarioEvento.values_list('evento_id', flat=True))
+            )
+        else:
+            eventos = Evento.objects.exclude(usuario_anfitrion=usuario)
+
         
-        eventos = Evento.objects.annotate(num_asistentes=Count('usuarioevento')).filter(
-            fecha__gt=timezone.now(),
-            limite_asistentes__gt=F('num_asistentes'),
-        ).exclude(usuarioevento__usuario=usuario)
+        
+        # Filtrar eventos que no tienen un UsuarioEvento para el mismo usuario y el mismo evento,
+        # y cuya fecha sea posterior a la actual
+
+
 
         localizaciones = []
         
@@ -379,6 +388,7 @@ def get_events_locations(request):
             localizaciones.append(evento_json)
 
         return JsonResponse(localizaciones, safe=False)
+
 
 
 @api_view(['POST'])
