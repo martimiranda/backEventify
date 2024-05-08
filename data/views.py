@@ -343,6 +343,7 @@ def delete_event(request):
         evento.delete()  
         return JsonResponse({"mensaje": "Evento eliminado correctamente"})
     
+
 @api_view(['POST'])
 def get_events_locations(request):
     if request.method == 'POST':
@@ -350,44 +351,32 @@ def get_events_locations(request):
         token_data = data.get('token', None)
 
         if token_data is None:
-            return JsonResponse({"error": "Token invalido"}, status=400)
+            return JsonResponse({"error": "Token inválido"}, status=400)
         
         usuario = get_object_or_404(Usuario, token=token_data)
         
-        subquery = UsuarioEvento.objects.filter(
-            usuario=usuario,
-            evento=OuterRef('pk')
-        ).values('evento_id')
-        
-        eventos = Evento.objects.filter(
+        eventos = Evento.objects.annotate(num_asistentes=Count('usuarioevento')).filter(
             fecha__gt=timezone.now(),
-            limite_asistentes__gt=Subquery(subquery)
+            limite_asistentes__gt=F('num_asistentes'),
         ).exclude(usuarioevento__usuario=usuario)
 
         localizaciones = []
         
         for evento in eventos:
-            # Verificar si no existe un UsuarioEvento con este usuario y evento
-            if not UsuarioEvento.objects.filter(usuario=usuario, evento=evento).exists():
-                # Comprobar que la fecha sea posterior a la del evento
-                if evento.fecha > timezone.now():
-                    # Verificar que la suma de UsuarioEvento con el evento sea menor al límite
-                    cantidad_asistentes = UsuarioEvento.objects.filter(evento=evento).count()
-                    if cantidad_asistentes < evento.limite_asistentes:
-                        localizacion_json = json.loads(evento.localizacion_evento)
+            localizacion_json = json.loads(evento.localizacion_evento)
 
-                        evento_json = {
-                            'lat': localizacion_json['lat'],
-                            'lng': localizacion_json['lng'],
-                            'titulo_evento': evento.titulo_evento,
-                            'id_evento': evento.pk,
-                            'usuario_anfitrion': evento.usuario_anfitrion.nombre_usuario,
-                            'localizacion_evento_string': evento.localizacion_evento_string,
-                            'fecha': evento.fecha,
-                            'descripcion_evento': evento.descripcion_evento
-                        }
-                        
-                        localizaciones.append(evento_json)
+            evento_json = {
+                'lat': localizacion_json['lat'],
+                'lng': localizacion_json['lng'],
+                'titulo_evento': evento.titulo_evento,
+                'id_evento': evento.pk,
+                'usuario_anfitrion': evento.usuario_anfitrion.nombre_usuario,
+                'localizacion_evento_string': evento.localizacion_evento_string,
+                'fecha': evento.fecha,
+                'descripcion_evento': evento.descripcion_evento
+            }
+            
+            localizaciones.append(evento_json)
 
         return JsonResponse(localizaciones, safe=False)
 
