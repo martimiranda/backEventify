@@ -134,20 +134,24 @@ def inicialize_events_page(request):
 @csrf_exempt
 def show_photo(request, evento_id):
     evento = get_object_or_404(Evento, pk=evento_id)
-    photo_path = os.path.join(settings.MEDIA_ROOT, str(evento.foto_evento))
     
+    # Construye la ruta completa de la foto
+    photo_path = os.path.join(settings.MEDIA_ROOT, 'event_photos', str(evento.foto_evento))
     
-    if os.path.exists(photo_path):
+    # Verifica si la ruta es un archivo y no un directorio
+    if os.path.isfile(photo_path):
+        # Si la ruta es un archivo, lee el archivo de la foto y devuelve la respuesta
         with open(photo_path, 'rb') as photo_file:
             return HttpResponse(photo_file.read(), content_type='image/jpeg')
     else:
-        image_path = os.path.join(settings.MEDIA_ROOT, 'event_photos', 'nophoto.jpg')
-    
-        if os.path.exists(image_path):
-            with open(image_path, 'rb') as image_file:
+        # Si la ruta es un directorio o el archivo no existe, devuelve una imagen predeterminada o un código de estado 404
+        default_image_path = os.path.join(settings.MEDIA_ROOT, 'event_photos', 'nophoto.jpg')
+        if os.path.exists(default_image_path):
+            with open(default_image_path, 'rb') as image_file:
                 return HttpResponse(image_file.read(), content_type='image/jpeg')
         else:
-            return HttpResponse(status=404)
+            # Si no hay imagen predeterminada, devuelve un JSON con un mensaje de error
+            return JsonResponse({'error': 'Foto no encontrada'}, status=404)
 
 @csrf_exempt   
 def show_photo_user(request, user_id):
