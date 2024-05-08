@@ -136,7 +136,8 @@ def show_photo(request, evento_id):
     evento = get_object_or_404(Evento, pk=evento_id)
     
     # Construye la ruta completa de la foto
-    photo_path = os.path.join(settings.MEDIA_ROOT, 'event_photos', str(evento.foto_evento))
+    photo_path = os.path.join(settings.MEDIA_ROOT, str(evento.foto_evento))
+    print("photo_path: ",photo_path)
     
     # Verifica si la ruta es un archivo y no un directorio
     if os.path.isfile(photo_path):
