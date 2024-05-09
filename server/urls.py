@@ -32,6 +32,9 @@ urlpatterns = [
     path('events/delete-event/', views.delete_event), #ELIMINAR EVENTO
     path('events/join-event/', views.join_event), #UNIRSE A EVENTO
     path('events/get-events-locations/', views.get_events_locations), #OBTENER UBICACION DE TODOS LOS EVENTOS
+    path('events/show-events-joins/', views.show_events_joins), #OBTENER LOS EVENTOS A LOS QUE SE HA UNIDO EL USUARIO
+    path('events/unsuscribe-event/', views.unsuscribe_event), #DESAPUNTARSE DE UN EVENTO
+    
 
     path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/<int:user_id>/photo/', views.show_photo_user), #OBTENER IMAGEN DE UN USUARIO (NO IMPLEMENTADA CLIENTE)

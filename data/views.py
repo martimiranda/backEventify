@@ -407,3 +407,46 @@ def join_event(request):
         usuario_evento.save()
 
         return JsonResponse({"mensaje": "UsuarioEvento creado correctamente"})
+
+@api_view(['POST'])
+def show_events_joins(request):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token inválido"}, status=400)
+        usuario = get_object_or_404(Usuario, token=token_data)
+        
+        eventos_anfitrion_ids = Evento.objects.filter(usuario_anfitrion=usuario).values_list('id', flat=True)
+        
+        eventos_participante_ids = UsuarioEvento.objects.filter(usuario=usuario).values_list('evento_id', flat=True)
+        
+        eventos_creados = Evento.objects.exclude(id__in=eventos_anfitrion_ids)
+        
+        eventos_joins = eventos_creados.filter(id__in=eventos_participante_ids).order_by('-fecha')
+        
+        results = []
+        for evento in eventos_joins:
+            results.append({'id': evento.pk, 'titulo_evento': evento.titulo_evento,
+                            'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
+                            'descripcion_evento':evento.descripcion_evento, 'localizacion_evento_string':evento.localizacion_evento_string,
+                            'fecha':evento.fecha
+                            })
+        return JsonResponse(results, safe=False)
+
+    else:
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+@api_view(['POST'])
+def unsuscribe_event(request):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        evento_id = data.get('evento_id', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        usuario = get_object_or_404(Usuario, token=token_data)
+        evento = get_object_or_404(Evento, pk=evento_id)
+        union = get_object_or_404(UsuarioEvento, usuario=usuario, evento=evento) 
+        union.delete() 
+        return JsonResponse({"mensaje": "Evento eliminado correctamente"})
