@@ -17,6 +17,31 @@ class Usuario(models.Model):
     )
     sexo_usuario = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
     token = models.CharField(max_length=40, blank=True, null=True)
+    INTERESES_CHOICES = [
+    ('Juegos', 'Juegos'),
+    ('Fiestas', 'Fiestas'),
+    ('Musica', 'Música'),
+    ('Social', 'Social'),
+    ('Deportes', 'Deportes'),
+    ('Viajes', 'Viajes'),
+    ('Lectura', 'Lectura'),
+    ('Cocina', 'Cocina'),
+    ('Fotografía', 'Fotografía'),
+    ('Tecnología', 'Tecnología'),
+    ('Arte', 'Arte'),
+    ('Naturaleza', 'Naturaleza'),
+    ('Películas', 'Películas'),
+    ('Baile', 'Baile'),
+    ('Moda', 'Moda'),
+    ('Meditación', 'Meditación'),
+    ('Voluntariado', 'Voluntariado'),
+    ('Yoga', 'Yoga'),
+    ('Animales', 'Animales'),
+    ('Astronomía', 'Astronomía'),   
+]
+
+    intereses_usuario = models.CharField(max_length=50, choices=INTERESES_CHOICES, blank=True, null=True)
+    biografia_usuario = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.password:
