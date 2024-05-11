@@ -197,7 +197,8 @@ def show_users_on_event(request):
                 'sexo_usuario': usuario_evento.usuario.sexo_usuario,
                 'intereses_usuario': usuario_evento.usuario.intereses_usuario,
                 'biografia_usuario': usuario_evento.usuario.biografia_usuario,
-                'evento_id': usuario_evento.evento.pk
+                'evento_id': usuario_evento.evento.pk,
+                'evento_name':usuario_evento.evento.titulo_evento
             }
             usuarios_data.append(usuario_data)
         
@@ -495,4 +496,17 @@ def admin_unsuscribe_event(request):
         evento = get_object_or_404(Evento, pk=evento_id)
         union = get_object_or_404(UsuarioEvento, usuario=usuario, evento=evento) 
         union.delete() 
+        return JsonResponse({"mensaje": "Evento eliminado correctamente"})
+    
+@api_view(['POST'])
+def make_notification(request):
+    if request.method == 'POST':
+        data = request.data
+        usuario_id = data.get('usuario_id', None)
+        mensaje = data.get('mensaje', None)
+        usuario = get_object_or_404(Usuario, pk=usuario_id)
+
+        notificacion = notificacionUsuario(usuario=usuario, mensaje=mensaje)
+        notificacion.save()
+        
         return JsonResponse({"mensaje": "Evento eliminado correctamente"})
