@@ -34,6 +34,9 @@ urlpatterns = [
     path('events/get-events-locations/', views.get_events_locations), #OBTENER UBICACION DE TODOS LOS EVENTOS
     path('events/show-events-joins/', views.show_events_joins), #OBTENER LOS EVENTOS A LOS QUE SE HA UNIDO EL USUARIO
     path('events/unsuscribe-event/', views.unsuscribe_event), #DESAPUNTARSE DE UN EVENTO
+    path('events/admin-unsuscribe-event/', views.admin_unsuscribe_event), #DESAPUNTAR A UN USUARIO DE MI EVENTO
+    path('events/show-users-on-event/', views.show_users_on_event), #MOSTRAR USUARIOS QUE SE HAN UNIDO AL EVENTO
+
     
 
     path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO (NO IMPLEMENTADA CLIENTE)

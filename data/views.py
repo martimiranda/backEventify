@@ -121,10 +121,12 @@ def inicialize_events_page(request):
         eventos_creados = Evento.objects.filter(usuario_anfitrion=usuario).order_by('-fecha')
         results = []
         for evento in eventos_creados:
+            usuarios_unidos =  UsuarioEvento.objects.filter(evento=evento).count() -1
+
             results.append({'id': evento.pk, 'titulo_evento': evento.titulo_evento,
                             'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
                             'descripcion_evento':evento.descripcion_evento, 'localizacion_evento_string':evento.localizacion_evento_string,
-                            'fecha':evento.fecha
+                            'fecha':evento.fecha, 'usuarios_unidos':usuarios_unidos
                             })
         return JsonResponse(results, safe=False)
 
@@ -160,7 +162,7 @@ def show_photo_user(request, user_id):
     photo_path = os.path.join(settings.MEDIA_ROOT, str(usuario.foto_usuario))
     
     
-    if os.path.exists(photo_path):
+    if os.path.isfile(photo_path):
         with open(photo_path, 'rb') as photo_file:
             return HttpResponse(photo_file.read(), content_type='image/jpeg')
     else:
@@ -171,7 +173,37 @@ def show_photo_user(request, user_id):
                 return HttpResponse(image_file.read(), content_type='image/jpeg')
         else:
             return HttpResponse(status=404)
-    
+
+
+@api_view(['POST'])
+def show_users_on_event(request):
+    if request.method == 'POST':
+        data = request.data
+        evento_id = data.get('idEvento', None)
+        evento = get_object_or_404(Evento, pk=evento_id)
+        usuarios_evento = UsuarioEvento.objects.filter(evento=evento).exclude(usuario=evento.usuario_anfitrion)
+        
+        usuarios_data = []
+        for usuario_evento in usuarios_evento:
+            usuario_data = {
+                'id': usuario_evento.usuario.pk,
+                'email': usuario_evento.usuario.email,
+                'telefono': usuario_evento.usuario.telefono,
+                'nombre_usuario': usuario_evento.usuario.nombre_usuario,
+                'apellido_usuario': usuario_evento.usuario.apellido_usuario,
+                'foto_usuario': usuario_evento.usuario.foto_usuario.url if usuario_evento.usuario.foto_usuario else None,
+                'localizacion_usuario': usuario_evento.usuario.localizacion_usuario,
+                'fecha_nacimiento': usuario_evento.usuario.fecha_nacimiento,
+                'sexo_usuario': usuario_evento.usuario.sexo_usuario,
+                'intereses_usuario': usuario_evento.usuario.intereses_usuario,
+                'biografia_usuario': usuario_evento.usuario.biografia_usuario,
+                'evento_id': usuario_evento.evento.pk
+            }
+            usuarios_data.append(usuario_data)
+        
+        return JsonResponse({'usuarios': usuarios_data})
+		
+
 
 @api_view(['POST'])
 def create_new_event(request):
@@ -427,10 +459,12 @@ def show_events_joins(request):
         
         results = []
         for evento in eventos_joins:
+            usuarios_unidos =  UsuarioEvento.objects.filter(evento=evento).count() -1
+
             results.append({'id': evento.pk, 'titulo_evento': evento.titulo_evento,
                             'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
                             'descripcion_evento':evento.descripcion_evento, 'localizacion_evento_string':evento.localizacion_evento_string,
-                            'fecha':evento.fecha
+                            'fecha':evento.fecha, 'usuarios_unidos':usuarios_unidos
                             })
         return JsonResponse(results, safe=False)
 
@@ -446,6 +480,18 @@ def unsuscribe_event(request):
         if token_data is None:
             return JsonResponse({"error": "Token invalido"}, status=400)
         usuario = get_object_or_404(Usuario, token=token_data)
+        evento = get_object_or_404(Evento, pk=evento_id)
+        union = get_object_or_404(UsuarioEvento, usuario=usuario, evento=evento) 
+        union.delete() 
+        return JsonResponse({"mensaje": "Evento eliminado correctamente"})
+
+@api_view(['POST'])
+def admin_unsuscribe_event(request):
+    if request.method == 'POST':
+        data = request.data
+        usuario_id = data.get('usuario_id', None)
+        evento_id = data.get('evento_id', None)
+        usuario = get_object_or_404(Usuario, pk=usuario_id)
         evento = get_object_or_404(Evento, pk=evento_id)
         union = get_object_or_404(UsuarioEvento, usuario=usuario, evento=evento) 
         union.delete() 
