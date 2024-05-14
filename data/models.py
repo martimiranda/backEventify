@@ -76,4 +76,5 @@ class UsuarioEvento(models.Model):
 class notificacionUsuario(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     mensaje = models.TextField()
+    notification_type = models.CharField(max_length=100)
 

@@ -41,10 +41,6 @@ def api_register(request):
             return JsonResponse({"error": "Faltan datos requeridos"}, status=400)
 
 
-
-
-
-
         nuevo_usuario = Usuario(
             email=email,
             nombre_usuario=nombre_usuario,
@@ -460,7 +456,8 @@ def show_events_joins(request):
         
         results = []
         for evento in eventos_joins:
-            usuarios_unidos =  UsuarioEvento.objects.filter(evento=evento).count() -1
+            usuarios_unidos =  UsuarioEvento.objects.filter(evento=evento).count() - 1
+            
 
             results.append({'id': evento.pk, 'titulo_evento': evento.titulo_evento,
                             'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
@@ -504,9 +501,19 @@ def make_notification(request):
         data = request.data
         usuario_id = data.get('usuario_id', None)
         mensaje = data.get('mensaje', None)
+        notification_type = data.get('notification_type', None)
         usuario = get_object_or_404(Usuario, pk=usuario_id)
 
-        notificacion = notificacionUsuario(usuario=usuario, mensaje=mensaje)
+        notificacion = notificacionUsuario(usuario=usuario, mensaje=mensaje, notification_type=notification_type)
         notificacion.save()
         
         return JsonResponse({"mensaje": "Evento eliminado correctamente"})
+
+@api_view(['POST'])
+def get_user_notifications(request):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        usuario = get_object_or_404(Usuario, token=token_data)
