@@ -504,7 +504,7 @@ def make_notification(request):
         notification_type = data.get('notification_type', None)
         usuario = get_object_or_404(Usuario, pk=usuario_id)
 
-        notificacion = notificacionUsuario(usuario=usuario, mensaje=mensaje, notification_type=notification_type)
+        notificacion = NotificacionUsuario(usuario=usuario, mensaje=mensaje, notification_type=notification_type)
         notificacion.save()
         
         return JsonResponse({"mensaje": "Evento eliminado correctamente"})
@@ -517,3 +517,18 @@ def get_user_notifications(request):
         if token_data is None:
             return JsonResponse({"error": "Token invalido"}, status=400)
         usuario = get_object_or_404(Usuario, token=token_data)
+        notifications = NotificacionUsuario.objects.filter(usuario=usuario)
+
+        results = []
+        for notification in notifications:
+            results.append({
+                'usuario_id': notification.usuario.id,
+                'mensaje': notification.mensaje,
+                'notification_type': notification.notification_type,
+                # Añade más campos si es necesario
+            })
+        
+        return JsonResponse(results, safe=False)
+
+    else:
+        return JsonResponse({"error": "Método no permitido"}, status=405)

@@ -6,7 +6,7 @@ admin.site.register(Grupo)
 admin.site.register(UsuarioGrupo)
 admin.site.register(Evento)
 admin.site.register(UsuarioEvento)
-admin.site.register(notificacionUsuario)
+admin.site.register(NotificacionUsuario)
 
 # Register your models here.
 
