@@ -78,3 +78,10 @@ class NotificacionUsuario(models.Model):
     mensaje = models.TextField()
     notification_type = models.CharField(max_length=100)
 
+class Amistad(models.Model):
+    usuario_enviador = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='usuario_enviador_solicitud_amistad')
+    usuario_recibidor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='usuario_recibidor_solicitud_amistad')
+    amistad_aceptada = models.BooleanField()
+
+   
+

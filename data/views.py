@@ -177,6 +177,10 @@ def show_users_on_event(request):
         data = request.data
         evento_id = data.get('idEvento', None)
         evento = get_object_or_404(Evento, pk=evento_id)
+        token_data = data.get('token', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        usuario = get_object_or_404(Usuario, token=token_data)
         usuarios_evento = UsuarioEvento.objects.filter(evento=evento).exclude(usuario=evento.usuario_anfitrion)
         
         usuarios_data = []
@@ -196,6 +200,16 @@ def show_users_on_event(request):
                 'evento_id': usuario_evento.evento.pk,
                 'evento_name':usuario_evento.evento.titulo_evento
             }
+            if Amistad.objects.filter(usuario_enviador=usuario, usuario_recibidor=usuario_evento.usuario, amistad_aceptada=True).exists() or \
+               Amistad.objects.filter(usuario_enviador=usuario_evento.usuario, usuario_recibidor=usuario, amistad_aceptada=True).exists():
+                    usuario_data['amigo'] = "solicitud_aceptada"
+            else:
+                if Amistad.objects.filter(usuario_enviador=usuario, usuario_recibidor=usuario_evento.usuario).exists() or \
+                   Amistad.objects.filter(usuario_enviador=usuario_evento.usuario, usuario_recibidor=usuario).exists():
+                        usuario_data['amigo'] = "solicitud_no_aceptada"
+                else:
+                    usuario_data['amigo'] = "solicitud_no_enviada"
+
             usuarios_data.append(usuario_data)
         
         return JsonResponse({'usuarios': usuarios_data})
