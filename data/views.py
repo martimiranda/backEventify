@@ -416,6 +416,8 @@ def get_events_locations(request):
         
         for evento in eventos:
             localizacion_json = json.loads(evento.localizacion_evento)
+            usuarios_unidos =  UsuarioEvento.objects.filter(evento=evento).count() -1
+
 
             evento_json = {
                 'lat': localizacion_json['lat'],
@@ -425,7 +427,9 @@ def get_events_locations(request):
                 'usuario_anfitrion': evento.usuario_anfitrion.nombre_usuario,
                 'localizacion_evento_string': evento.localizacion_evento_string,
                 'fecha': evento.fecha,
-                'descripcion_evento': evento.descripcion_evento
+                'descripcion_evento': evento.descripcion_evento,
+                'usuarios_unidos':usuarios_unidos,
+                'limite_asistentes':evento.limite_asistentes
             }
             
             localizaciones.append(evento_json)
