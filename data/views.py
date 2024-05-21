@@ -354,6 +354,30 @@ def update_user_data(request):
             return JsonResponse({'message': 'User does not exist'}, status=404)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+
+@api_view(['POST'])
+def update_interest_user_data(request):
+    if request.method == 'POST':
+        user_data = request.data
+        token_data = user_data.get('token', None)
+        try:
+            user = get_object_or_404(Usuario, token=token_data)
+            if 'intereses' in user_data:
+                intereses = user_data.get('intereses')
+                user.intereses_usuario.clear()  
+                for interes in intereses:
+                    interes_obj = get_object_or_404(Interes, nombre=interes)
+                    user.intereses_usuario.add(interes_obj)
+            
+
+            user.save()
+            return JsonResponse({'message': 'User data updated successfully'}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({'message': 'User does not exist'}, status=404)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
     
 @api_view(['POST'])
 def update_user_ubi(request):

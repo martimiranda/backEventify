@@ -41,6 +41,7 @@ urlpatterns = [
 
     path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/<int:user_id>/photo/', views.show_photo_user), #OBTENER IMAGEN DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
+    path('user/update-interest-user-data/', views.update_interest_user_data), #ACTUALIZAR DATOS DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/update-user-data/', views.update_user_data), #ACTUALIZAR DATOS DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/update-user-ubi/',  views.update_user_ubi), #ACTUALIZAR UBICACION DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
     path('user/make-notification/',  views.make_notification), #CREAR UNA NOTIFICACION

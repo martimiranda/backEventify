@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.hashers import make_password
 from rest_framework.authtoken.models import Token
 
+
+class Interes(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.nombre
+    
 class Usuario(models.Model):
     email = models.EmailField(unique=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
@@ -17,36 +24,14 @@ class Usuario(models.Model):
     )
     sexo_usuario = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
     token = models.CharField(max_length=40, blank=True, null=True)
-    INTERESES_CHOICES = [
-    ('Juegos', 'Juegos'),
-    ('Fiestas', 'Fiestas'),
-    ('Musica', 'Música'),
-    ('Social', 'Social'),
-    ('Deportes', 'Deportes'),
-    ('Viajes', 'Viajes'),
-    ('Lectura', 'Lectura'),
-    ('Cocina', 'Cocina'),
-    ('Fotografía', 'Fotografía'),
-    ('Tecnología', 'Tecnología'),
-    ('Arte', 'Arte'),
-    ('Naturaleza', 'Naturaleza'),
-    ('Películas', 'Películas'),
-    ('Baile', 'Baile'),
-    ('Moda', 'Moda'),
-    ('Meditación', 'Meditación'),
-    ('Voluntariado', 'Voluntariado'),
-    ('Yoga', 'Yoga'),
-    ('Animales', 'Animales'),
-    ('Astronomía', 'Astronomía'),   
-]
-
-    intereses_usuario = models.CharField(max_length=50, choices=INTERESES_CHOICES, blank=True, null=True)
+    intereses_usuario = models.ManyToManyField(Interes, blank=True)
     biografia_usuario = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.password:
             self.password = make_password(self.password)
         super().save(*args, **kwargs)
+
 
 
 class Grupo(models.Model):
