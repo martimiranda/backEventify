@@ -218,33 +218,40 @@ def show_users_on_event(request):
 
 @api_view(['POST'])
 def create_new_event(request):
-	if request.method == 'POST':
-		data = request.data
-		token_data = data.get('token', None)
-		if token_data is None:
-			return JsonResponse({"error": "Token invalido"}, status=400)
-		usuario = get_object_or_404(Usuario, token=token_data)
-		foto = request.FILES.get('foto')
-		nuevo_evento = Evento(
-			usuario_anfitrion= usuario,
-			pago=data.get('pago', False),
-			limite_asistentes=data.get('limite_asistentes', 0),
-			descripcion_evento=data.get('descripcion_evento', ''),
-			localizacion_evento=data.get('localizacion_evento', ''),
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        if token_data is None:
+            return JsonResponse({"error": "Token invalido"}, status=400)
+        usuario = get_object_or_404(Usuario, token=token_data)
+        foto = request.FILES.get('foto')
+        nuevo_evento = Evento(
+            usuario_anfitrion= usuario,
+            pago=data.get('pago', False),
+            limite_asistentes=data.get('limite_asistentes', 0),
+            descripcion_evento=data.get('descripcion_evento', ''),
+            localizacion_evento=data.get('localizacion_evento', ''),
             localizacion_evento_string=data.get('localizacion_evento_string', ''), 
             titulo_evento=data.get('titulo_evento',''),
-			foto_evento=foto,
-			fecha=data.get('fecha', None)
-			)
-		nuevo_evento.save()
+            #intereses_evento = data.get('intereses_evento',''),
+            foto_evento=foto,
+            fecha=data.get('fecha', None)
+            )
+        nuevo_evento.save()
+        intereses_evento = data.get('intereses_evento')
+        intereses_evento = [s.strip() for s in intereses_evento.split(',')]
+        print(intereses_evento)
+        for interes in intereses_evento:
+            interes_obj = get_object_or_404(Interes, nombre=interes)
+            nuevo_evento.intereses_evento.add(interes_obj)
 
 
-		UsuarioEvento.objects.create(usuario=usuario, evento=nuevo_evento)
+        UsuarioEvento.objects.create(usuario=usuario, evento=nuevo_evento)
 
-		return JsonResponse({"mensaje": "Evento creado exitosamente"}, status=201)
+        return JsonResponse({"mensaje": "Evento creado exitosamente"}, status=201)
 
-	else:
-		return JsonResponse({"error": "M  todo no permitido"}, status=405)
+    else:
+        return JsonResponse({"error": "M  todo no permitido"}, status=405)
 
 @api_view(['POST'])
 def update_event_data(request):
@@ -290,11 +297,13 @@ def get_event_data(request,evento_id):
             return JsonResponse({"error": "Token invalido"}, status=400)
         get_object_or_404(Usuario, token=token_data)
         evento = get_object_or_404(Evento, pk=evento_id)
+        intereses = evento.intereses_evento.all()
+        intereses_data = [interes.nombre for interes in intereses]
         evento_data={'id': evento.pk, 'usuario_anfitrion': evento.usuario_anfitrion.pk, 'titulo_evento': evento.titulo_evento,
                             'pago':evento.pago, 'limite_asistentes':evento.limite_asistentes,
                             'descripcion_evento':evento.descripcion_evento, 'localizacion_evento_string':evento.localizacion_evento_string,
                             'localizacion_evento':evento.localizacion_evento,
-                            'fecha':evento.fecha
+                            'fecha':evento.fecha,'intereses_evento':intereses_data
                             }
         return JsonResponse(evento_data, safe=False)
 

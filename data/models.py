@@ -53,6 +53,8 @@ class Evento(models.Model):
     localizacion_evento_string = models.CharField(max_length=200)
     foto_evento = models.ImageField(upload_to='event_photos/', blank=True, null=True)
     fecha = models.DateTimeField(blank=True, null=True)
+    intereses_evento = models.ManyToManyField(Interes, blank=True)
+
 
 class UsuarioEvento(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
