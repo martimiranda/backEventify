@@ -553,6 +553,52 @@ def unsuscribe_event(request):
         union.delete() 
         return JsonResponse({"mensaje": "Evento eliminado correctamente"})
 
+
+
+@api_view(['POST'])
+def show_events_by_interests(request):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        
+        if token_data is None:
+            return JsonResponse({"error": "Token inválido"}, status=400)
+        
+        usuario = get_object_or_404(Usuario, token=token_data)
+        
+        intereses_usuario = usuario.intereses_usuario.all()
+        
+        if intereses_usuario.exists():
+            eventos = Evento.objects.filter(intereses_evento__in=intereses_usuario).distinct().order_by('-fecha')
+        else:
+            eventos = Evento.objects.all().order_by('-fecha')
+        
+        eventos_unidos_ids = UsuarioEvento.objects.filter(usuario=usuario).values_list('evento_id', flat=True)
+        eventos = eventos.exclude(id__in=eventos_unidos_ids)
+        
+        results = []
+        for evento in eventos:
+            usuarios_unidos = UsuarioEvento.objects.filter(evento=evento).count()-1
+            intereses_evento = evento.intereses_evento.all().values_list('nombre', flat=True)
+
+            results.append({
+                'id': evento.pk, 
+                'titulo_evento': evento.titulo_evento,
+                'pago': evento.pago, 
+                'limite_asistentes': evento.limite_asistentes,
+                'descripcion_evento': evento.descripcion_evento, 
+                'localizacion_evento_string': evento.localizacion_evento_string,
+                'fecha': evento.fecha, 
+                'intereses': list(intereses_evento),
+
+                'usuarios_unidos': usuarios_unidos
+            })
+        
+        return JsonResponse(results, safe=False)
+    
+    else:
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
 @api_view(['POST'])
 def admin_unsuscribe_event(request):
     if request.method == 'POST':

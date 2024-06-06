@@ -36,6 +36,8 @@ urlpatterns = [
     path('events/unsuscribe-event/', views.unsuscribe_event), #DESAPUNTARSE DE UN EVENTO
     path('events/admin-unsuscribe-event/', views.admin_unsuscribe_event), #DESAPUNTAR A UN USUARIO DE MI EVENTO
     path('events/show-users-on-event/', views.show_users_on_event), #MOSTRAR USUARIOS QUE SE HAN UNIDO AL EVENTO
+    path('events/show-events-by-interest/', views.show_events_by_interests), #MOSTRAR EVENTOS QUE CONTENGAN LOS MISMOS INTERESES QUE LOS DEL USUARIO
+
 
     
 
