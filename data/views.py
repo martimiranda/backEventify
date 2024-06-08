@@ -321,13 +321,16 @@ def get_user_data(request):
         if token_data is None:
             return JsonResponse({"error": "Token invalido"}, status=400)
         usuario = get_object_or_404(Usuario, token=token_data)
+        intereses_usuario = usuario.intereses_usuario.all().values_list('nombre', flat=True)
         return JsonResponse({
             "email":usuario.email,
             "telefono":usuario.telefono,
             "nombre_usuario":usuario.nombre_usuario,
             "apellido_usuario":usuario.apellido_usuario,
             "fecha_nacimiento":usuario.fecha_nacimiento,
-            "foto_usuario":"user/"+ str(usuario.pk)+"/photo/"
+            "foto_usuario":"user/"+ str(usuario.pk)+"/photo/",
+            "biografia_usuario":usuario.biografia_usuario,
+            "intereses_usuario":list(intereses_usuario)
         })
 
         return JsonResponse({"mensaje": "Evento creado exitosamente"}, status=201)
@@ -353,6 +356,8 @@ def update_user_data(request):
                 user.fecha_nacimiento = user_data.get('birth')
             if 'phone' in user_data:
                 user.telefono = user_data.get('phone')
+            if 'biography' in user_data:
+                user.biografia_usuario = user_data.get('biography')
             if foto is not None:
                 user.foto_usuario = foto
             
