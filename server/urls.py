@@ -37,18 +37,19 @@ urlpatterns = [
     path('events/admin-unsuscribe-event/', views.admin_unsuscribe_event), #DESAPUNTAR A UN USUARIO DE MI EVENTO
     path('events/show-users-on-event/', views.show_users_on_event), #MOSTRAR USUARIOS QUE SE HAN UNIDO AL EVENTO
     path('events/show-events-by-interest/', views.show_events_by_interests), #MOSTRAR EVENTOS QUE CONTENGAN LOS MISMOS INTERESES QUE LOS DEL USUARIO
-
-
+    path('events/search-event/<str:query>/', views.search_events),#BUSCAR EVENTOS QUE EL TITULO CONTENGA LA QUERY
+    path('events/search-event/<str:date_filter>/', views.search_events_by_date), #BUSCAR EVENTOS QUE ESTEN EN LA FECHA INDICADA
     
 
-    path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO (NO IMPLEMENTADA CLIENTE)
-    path('user/<int:user_id>/photo/', views.show_photo_user), #OBTENER IMAGEN DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
+    path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO 
+    path('user/<int:user_id>/photo/', views.show_photo_user), #OBTENER IMAGEN DE UN USUARIO 
     path('user/update-interest-user-data/', views.update_interest_user_data), #ACTUALIZAR INTERESES DE UN USUARIO 
     path('user/update-user-bio/', views.update_user_bio), #ACTUALIZAR BIOGRAFIA DE UN USUARIO 
-    path('user/update-user-data/', views.update_user_data), #ACTUALIZAR DATOS DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
-    path('user/update-user-ubi/',  views.update_user_ubi), #ACTUALIZAR UBICACION DE UN USUARIO (NO IMPLEMENTADA CLIENTE)
+    path('user/update-user-data/', views.update_user_data), #ACTUALIZAR DATOS DE UN USUARIO 
+    path('user/update-user-ubi/',  views.update_user_ubi), #ACTUALIZAR UBICACION DE UN USUARIO 
     path('user/make-notification/',  views.make_notification), #CREAR UNA NOTIFICACION
     path('user/get-user-notifications/',  views.get_user_notifications), #MOSTRAR NOTIFICACIONES DE UN USUARIO 
+    path('user/delete-notification/', views.delete_notification), #ELIMINAR NOTIFICACION
 
     
 

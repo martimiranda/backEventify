@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password,check_password
 from django.http import JsonResponse, HttpResponse
 from data.models import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
@@ -646,10 +646,108 @@ def get_user_notifications(request):
                 'usuario_id': notification.usuario.id,
                 'mensaje': notification.mensaje,
                 'notification_type': notification.notification_type,
+                'notificacion_id': notification.pk,
                 # Añade más campos si es necesario
             })
         
         return JsonResponse(results, safe=False)
 
+    else:
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+    
+@api_view(['POST'])
+def delete_notification(request):
+    if request.method == 'POST':
+        data = request.data
+        notificacion_id = data.get('notificacion_id', None)
+        notificacion = get_object_or_404(NotificacionUsuario, pk=notificacion_id)
+        notificacion.delete()  
+        return JsonResponse({"mensaje": "Notificacion eliminada correctamente"})
+    
+@api_view(['POST'])
+def search_events(request, query):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        
+        if token_data is None:
+            return JsonResponse({"error": "Token inválido"}, status=400)
+        
+        usuario = get_object_or_404(Usuario, token=token_data)
+        eventos = Evento.objects.filter(titulo_evento__icontains=query).distinct().order_by('-fecha')
+        eventos_unidos_ids = UsuarioEvento.objects.filter(usuario=usuario).values_list('evento_id', flat=True)
+        eventos = eventos.exclude(id__in=eventos_unidos_ids)
+        results = []
+        for evento in eventos:
+            usuarios_unidos = UsuarioEvento.objects.filter(evento=evento).count() - 1
+            intereses_evento = evento.intereses_evento.all().values_list('nombre', flat=True)
+
+            results.append({
+                'id': evento.pk,
+                'titulo_evento': evento.titulo_evento,
+                'pago': evento.pago,
+                'limite_asistentes': evento.limite_asistentes,
+                'descripcion_evento': evento.descripcion_evento,
+                'localizacion_evento_string': evento.localizacion_evento_string,
+                'fecha': evento.fecha,
+                'intereses': list(intereses_evento),
+                'usuarios_unidos': usuarios_unidos
+            })
+        
+        return JsonResponse(results, safe=False)
+    else:
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+@api_view(['POST'])
+def search_events_by_date(request, date_filter):
+    if request.method == 'POST':
+        data = request.data
+        token_data = data.get('token', None)
+        
+        if token_data is None:
+            return JsonResponse({"error": "Token inválido"}, status=400)
+        
+        usuario = get_object_or_404(Usuario, token=token_data)
+        now = timezone.now()
+
+        if date_filter == 'Hoy':
+            start_date = now
+            end_date = now + timedelta(days=1)
+        elif date_filter == 'Mañana':
+            start_date = now + timedelta(days=1)
+            end_date = now + timedelta(days=2)
+        elif date_filter == 'Esta semana':
+            start_date = now
+            end_date = now + timedelta(days=7)
+        elif date_filter == 'Este mes':
+            start_date = now
+            end_date = now + timedelta(days=30)
+        else:
+            return JsonResponse({"error": "Tipo de fecha no válido"}, status=400)
+
+        eventos = Evento.objects.filter(
+            fecha__range=(start_date, end_date)
+        ).distinct().order_by('-fecha')
+        eventos_unidos_ids = UsuarioEvento.objects.filter(usuario=usuario).values_list('evento_id', flat=True)
+        eventos = eventos.exclude(id__in=eventos_unidos_ids)
+
+        results = []
+        for evento in eventos:
+            usuarios_unidos = UsuarioEvento.objects.filter(evento=evento).count() - 1
+            intereses_evento = evento.intereses_evento.all().values_list('nombre', flat=True)
+
+            results.append({
+                'id': evento.pk,
+                'titulo_evento': evento.titulo_evento,
+                'pago': evento.pago,
+                'limite_asistentes': evento.limite_asistentes,
+                'descripcion_evento': evento.descripcion_evento,
+                'localizacion_evento_string': evento.localizacion_evento_string,
+                'fecha': evento.fecha,
+                'intereses': list(intereses_evento),
+                'usuarios_unidos': usuarios_unidos
+            })
+        
+        return JsonResponse(results, safe=False)
     else:
         return JsonResponse({"error": "Método no permitido"}, status=405)
