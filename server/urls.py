@@ -38,7 +38,7 @@ urlpatterns = [
     path('events/show-users-on-event/', views.show_users_on_event), #MOSTRAR USUARIOS QUE SE HAN UNIDO AL EVENTO
     path('events/show-events-by-interest/', views.show_events_by_interests), #MOSTRAR EVENTOS QUE CONTENGAN LOS MISMOS INTERESES QUE LOS DEL USUARIO
     path('events/search-event/<str:query>/', views.search_events),#BUSCAR EVENTOS QUE EL TITULO CONTENGA LA QUERY
-    path('events/search-event/<str:date_filter>/', views.search_events_by_date), #BUSCAR EVENTOS QUE ESTEN EN LA FECHA INDICADA
+    path('events/search-event-date/<str:date_filter>/', views.search_events_by_date), #BUSCAR EVENTOS QUE ESTEN EN LA FECHA INDICADA
     
 
     path('user/get-user-data/', views.get_user_data), #OBTENER INFORMACION USUARIO 
