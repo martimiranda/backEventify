@@ -26,6 +26,11 @@ urlpatterns = [
     path('register/',views.api_register), #REGISTRARSE
     path('creation-events-page/',views.inicialize_events_page), #CARGAR EVENTOS CREADOS POR EL USUARIO
     path('create-new-event/',views.create_new_event), #CREAR UN NUEVO EVENTO
+    path('send-email/', views.email_view),
+    path('success/', views.success_view),
+    path('reset_password/', views.reset_password_view),
+
+
     path('events/<int:evento_id>/photo/', views.show_photo), #OBTENER IMAGEN DE UN EVENTO
     path('events/get-event-data/<int:evento_id>/', views.get_event_data), #OBTENER DATOS DE UN EVENTO 
     path('events/update-event-data/', views.update_event_data), #EDITAR DATOS DE UN EVENTO 

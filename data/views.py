@@ -16,6 +16,10 @@ from django.contrib.auth.models import User
 from django.core.serializers import serialize
 from django.utils import timezone
 from django.db.models import Count, Q, F, OuterRef, Subquery
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from .forms import EmailForm, PasswordResetForm
+
 import uuid,secrets,json,os
 
 
@@ -741,3 +745,58 @@ def search_events_by_date(request, date_filter):
         return JsonResponse(results, safe=False)
     else:
         return JsonResponse({"error": "Método no permitido"}, status=405)
+    
+
+
+def email_view(request):
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            usuario = get_object_or_404(Usuario, email=email)
+            nombre = usuario.nombre_usuario
+            token = usuario.token
+
+            reset_password_link = f'https://eventify.ieti.site/reset_password?token={token}'
+
+            email_subject = 'Solicitud de cambio de contraseña'
+            email_body = (
+                f'Estimado/a usuario {nombre},\n\n'
+                'Hemos recibido una solicitud para cambiar la contraseña de su cuenta.\n'
+                'Para proceder con el cambio de contraseña, por favor haga clic en el siguiente enlace:\n\n'
+                f'{reset_password_link}\n\n'
+                'Si usted no solicitó este cambio, por favor ignore este correo electrónico.\n\n'
+                'Gracias,\n'
+                'El equipo de soporte de Eventify'
+            )
+
+            send_mail(
+                email_subject,
+                email_body,
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+            return render(request, 'data/success.html')  # Redirige a una página de éxito
+    else:
+        form = EmailForm()
+    return render(request, 'data/email_form.html', {'form': form})
+
+def success_view(request):
+    return render(request, 'data/success.html')
+
+def reset_password_view(request):
+    token = request.GET.get('token')
+    usuario = get_object_or_404(Usuario, token=token)
+
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            usuario.password = make_password(new_password)
+            usuario.save()
+            return render(request, 'data/password_reset_success.html')  
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'data/reset_password.html', {'form': form, 'token': token})
