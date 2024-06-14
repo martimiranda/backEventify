@@ -86,7 +86,10 @@ def api_login(request):
 
         usuario = get_object_or_404(Usuario, email=user)
         passUser = make_password(passUser)
-        
+        if (passUser != usuario.password):
+            return JsonResponse({"error": "M  todo no permitido"}, status=404)
+
+            
 
         return JsonResponse({
             "mensaje": "Usuario logeado  exitosamente",
