@@ -504,6 +504,14 @@ def join_event(request):
         usuario_evento = UsuarioEvento(usuario=usuario, evento=evento)
         usuario_evento.save()
 
+        mensaje = f"{usuario.nombre_usuario} se ha unido a tu evento {evento.titulo_evento}"
+        notificacion = NotificacionUsuario(
+            usuario=evento.usuario_anfitrion,
+            mensaje=mensaje,
+            notification_type="Evento"
+        )
+        notificacion.save()
+
         return JsonResponse({"mensaje": "UsuarioEvento creado correctamente"})
 
 @api_view(['POST'])
