@@ -86,7 +86,7 @@ def api_login(request):
 
         usuario = get_object_or_404(Usuario, email=user)
         passUser = make_password(passUser)
-        if not check_password(passUser, usuario.password):
+        if passUser != usuario.password:
             return JsonResponse({"error": "Usuario o contraseña incorrectos"}, status=404)
 
         return JsonResponse({
